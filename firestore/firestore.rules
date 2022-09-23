@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /Itineraries/{itineraryId} {
+    
+      // しおりデータのスキーマ検証
+      function isValidItinerary(itinerary) {
+        return itinerary.size() == 1
+                 && 'title' in itinerary && itinerary.title is string;
+      }
+      
+      allow get: if true;
+      
+      allow create, update: if isValidItinerary(request.resource.data);
+      
+      match /{document=**} {
+        allow read, write: if true;
+      }
+      
+    }
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
