@@ -1,5 +1,3 @@
-import * as functions from 'firebase-functions';
+import * as core from 'express-serve-static-core';
 
-export const getReqParams = <T>(req: functions.Request): T => {
-    return req.params as T;
-}
+export type exParamsDictionary<T> = T & core.ParamsDictionary;
