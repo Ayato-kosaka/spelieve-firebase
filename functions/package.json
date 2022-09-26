@@ -16,6 +16,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@Ayato-kosaka/spelieve-common": "github:ayato-kosaka/spelieve-common",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0"
   },
