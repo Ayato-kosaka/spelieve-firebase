@@ -1,4 +1,4 @@
-import {PCF002UpsertPlaceDataBodyInterface, PDB01MPlaceInterface} from '@Ayato-kosaka/spelieve-common/Interface';
+import {PCF002UpsertPlaceDataBodyInterface, PDB01MPlaceInterface} from 'spelieve-common/Interface';
 import * as utils from '../Utils';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
