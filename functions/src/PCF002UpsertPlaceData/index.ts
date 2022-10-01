@@ -12,9 +12,9 @@ export const PCF002UpsertPlaceData = functions.https.onRequest(async (
     utils.exParamsDictionary<PCF002UpsertPlaceDataBodyInterface>;
   // TODO collecton name をExportする。
   const documentReference = admin.firestore().collection('MPlace').doc(body.placeID);
-  const documentSnapshot = await documentReference.get()
-  if(documentSnapshot.exists){
-    let data = documentSnapshot.data() as PDB01MPlaceInterface;
+  const documentSnapshot = await documentReference.get();
+  if (documentSnapshot.exists) {
+    const data = documentSnapshot.data() as PDB01MPlaceInterface;
     // if(new Date() - data.updatedAt.toDate()){
   } else {
     // const data: PDB01MPlaceInterface = {};

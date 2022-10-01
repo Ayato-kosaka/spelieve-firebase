@@ -3,12 +3,12 @@ import * as projectConfig from '../projectConfig.json';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
-import { FeaturesList } from 'firebase-functions-test/lib/features';
+import {FeaturesList} from 'firebase-functions-test/lib/features';
 import * as myFunctions from '../src/index';
 
 
 describe('Cloud Functions', () => {
-    let test: FeaturesList;
+  let test: FeaturesList;
 
   beforeEach(() => {
     test = firebaseFunctionsTest(projectConfig, './service-account-key.json');
@@ -24,7 +24,7 @@ describe('Cloud Functions', () => {
   describe('addMessage', () => {
     it('should return a 303 redirect', (done) => {
       // A fake request object, with req.query.text set to 'input'
-      const req = { body: {text: 'input'} };
+      const req = {body: {text: 'input'}};
       // A fake response object, with a stubbed redirect function which does some assertions
       const res = {
         json: (code: number, url: string) => {
@@ -34,7 +34,7 @@ describe('Cloud Functions', () => {
           const expectedRef = new RegExp(projectConfig.databaseURL + '/messages/');
           expect(expectedRef.test(url)).toBeTruthy();
           done();
-        }
+        },
       };
 
       // Invoke addMessage with our fake request and response objects. This will cause the
@@ -42,4 +42,4 @@ describe('Cloud Functions', () => {
       myFunctions.CCF000AddMessage(req as functions.https.Request, res as functions.Response);
     });
   });
-})
+});
