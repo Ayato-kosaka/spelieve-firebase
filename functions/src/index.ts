@@ -1,5 +1,27 @@
-import * as admin from 'firebase-admin';
-admin.initializeApp();
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { AppModule } from './app.module';
+import * as express from 'express';
+import * as functions from 'firebase-functions';
+import helmet from 'helmet';
 
-// curl -X POST -H "Content-Type:application/json" http://localhost:5001/itinerary-4aee3/us-central1/CCF000AddMessage -d '{"text":"something"}'
-export {CCF000AddMessage} from './CCF000AddMessage';
+const server = express();
+
+export const createNestServer = async (expressInstance) => {
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressInstance),
+  );
+
+  app.use(helmet());
+  app.enableCors();
+
+  console.log('the server is starting @ firebase');
+  return app.init();
+};
+
+createNestServer(server)
+  .then((v) => console.log('Nest Ready'))
+  .catch((err) => console.error('Nest broken', err));
+
+export const api = functions.https.onRequest(server);
