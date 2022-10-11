@@ -6,7 +6,6 @@
 // import Places from 'google-places-web';
 // import { GeoPoint, Timestamp } from '@firebase/firestore-types';
 
-
 // export const PCF002UpsertPlaceData = functions.https.onRequest(async (
 //     req,
 //     res

@@ -5,7 +5,7 @@ Spelieve 扱うfirebase のソースコードリポジトリ
 ### start at localhost:5001
 ```
 npm install -g firebase-tools
-firebase login
+firebase login --no-localhost
 cd functions
 npm run serve
 ```
