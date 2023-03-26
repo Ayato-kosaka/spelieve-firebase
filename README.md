@@ -1,11 +1,9 @@
 # Spelieve-firebase
-Spelieve 扱うfirebase のソースコードリポジトリ
 
-## cloud functions
-### start at localhost:5001
-```
-npm install -g firebase-tools
-firebase login --no-localhost
-cd functions
-npm run serve
-```
+Spelieve 扱う firebase の以下をソースコードリポジトリ
+
+- firestore srcurity rule
+- firestore index
+- firebase storage srcurity rule
+
+※Cloud Functions は取り扱わない
