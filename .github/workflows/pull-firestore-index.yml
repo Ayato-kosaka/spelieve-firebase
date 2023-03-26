@@ -21,17 +21,11 @@ jobs:
           firebase firestore:indexes > "$(cat firebase.json | jq -r '.firestore.indexes')"\
             --token ${{ secrets.FIREBASE_TOKEN }}
 
-      - name: Set branch name with date
-        run: |
-          branch_name="pull-firestore-index-$(date +'%Y%m%d-%H%M%S')"
-          echo ::set-output name=branch::$branch_name
-        id: branch
-
       - name: Git Push
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git checkout -b ${{ steps.branch.outputs.branch }}
+          git checkout -b pull-firestore-index
           git add .
-          git commit -m "${{ steps.branch.outputs.branch }}"
-          git push
+          git commit -m "Pull Firestore Index"
+          git push --set-upstream origin pull-firestore-index
