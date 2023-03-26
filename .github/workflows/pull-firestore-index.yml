@@ -12,17 +12,14 @@ jobs:
         run: |
           sudo npm install -g firebase-tools
 
-      - name: Firebase Login
-        run: |
-          firebase login:ci --no-localhost --token ${{ secrets.FIREBASE_TOKEN }}
-
       - name: Set active Firebase project
         run: |
-          firebase use development
+          firebase use development  --token ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Pull Firestore Index
         run: |
-          firebase firestore:indexes > "$(cat firebase.json | jq -r '.firestore.indexes')"
+          firebase firestore:indexes > "$(cat firebase.json | jq -r '.firestore.indexes')"\
+            --token ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Set branch name with date
         run: |
