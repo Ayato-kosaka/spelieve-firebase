@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "itinerary-4aee3"
-  }
+    "production": "itinerary-4aee3",
+    "development": "spelieve-dev"
+  },
+  "targets": {},
+  "etags": {}
 }
