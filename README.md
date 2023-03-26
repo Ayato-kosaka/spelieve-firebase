@@ -13,6 +13,7 @@ Spelieve 扱う firebase の以下をソースコードリポジトリ
 ### Firestore Index
 
 - Pull Firestore Index
+- Deploy Firestore Index
 
 
 ## Reference
