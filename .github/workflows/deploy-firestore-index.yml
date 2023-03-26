@@ -16,7 +16,7 @@ on:
         default: production
         required: true
 jobs:
-  pull-index:
+  deploy-firestore-index:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
