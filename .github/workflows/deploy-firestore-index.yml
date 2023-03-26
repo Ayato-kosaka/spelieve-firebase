@@ -1,0 +1,36 @@
+name: Deploy Firestore Index
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'firestore/firestore.indexes.json'
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        description: Firebase project
+        options:
+          - production
+          - development
+        default: production
+        required: true
+jobs:
+  pull-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Install Firebase CLI
+        run: |
+          sudo npm install -g firebase-tools
+
+      - name: Set active Firebase project
+        run: |
+          firebase use ${{ github.event.inputs.target }}  --token ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deploy Firestore Index
+        run: |
+          firebase deploy --only firestore:indexes \
+            --token ${{ secrets.FIREBASE_TOKEN }}
