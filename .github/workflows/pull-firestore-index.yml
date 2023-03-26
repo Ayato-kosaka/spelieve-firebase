@@ -2,7 +2,7 @@ name: Pull Firestore Index
 on:
   workflow_dispatch:
 jobs:
-  pull-index:
+  pull-firestore-index:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

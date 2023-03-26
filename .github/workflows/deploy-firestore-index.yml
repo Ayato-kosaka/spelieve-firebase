@@ -13,10 +13,13 @@ on:
         options:
           - production
           - development
-        default: production
         required: true
+
+env:
+  TARGET: ${{ github.event.inputs.target || 'production' }}
+
 jobs:
-  pull-index:
+  deploy-firestore-index:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,7 +31,7 @@ jobs:
 
       - name: Set active Firebase project
         run: |
-          firebase use ${{ github.event.inputs.target }}  --token ${{ secrets.FIREBASE_TOKEN }}
+          firebase use ${{ env.TARGET }}  --token ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firestore Index
         run: |
