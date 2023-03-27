@@ -69,25 +69,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "locality",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "rating",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "MPlace",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "administrativeAreaLevel1",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "country",
+          "fieldPath": "language",
           "order": "ASCENDING"
         },
         {
