@@ -12,3 +12,14 @@ export const fetchAllDesignData = async () => {
 export const generateFile = (content: string, outputFilePath: string): void => {
   fs.writeFileSync(outputFilePath, content, { encoding: "utf-8" });
 };
+
+export const getFirebaseConfig = () => {
+  return JSON.parse(
+    fs.readFileSync("./firebase.json", { encoding: "utf-8" })
+  ) as {
+    firestore: {
+      rules: string;
+      index: string;
+    };
+  };
+};
