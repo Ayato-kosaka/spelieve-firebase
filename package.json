@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Spelieve 扱う firebase のソースコードリポジトリ",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "generateFirestoreRules": "ts-node ./src/generateFirestoreRules.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ayato-kosaka/spelieve-firebase.git"
