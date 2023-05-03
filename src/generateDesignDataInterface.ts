@@ -1,36 +1,59 @@
 import { fetchAllDesignData, generateFile } from "./utils";
 
-const stringifyObjectKeysToString = (obj: { [key: string]: string }) => {
-  return (
-    "{" +
-    Object.keys(obj)
-      .map((key) => {
-        if (!key) return "";
-        return `${key}: string;`;
-      })
-      .join("\n") +
-    "}"
-  );
-};
+function generateDesignDataInterface(json: {
+  [key: string]: {
+    [key: string]: any;
+  }[];
+}): string {
+  let interfaceCode = "export interface DesignDataInterface {\n";
 
-const generateDesignDataInterface = async () => {
-  const allDesignData = (await fetchAllDesignData()) as {
-    [key: string]: { [key: string]: string }[];
-  };
-  const result =
-    "export interface DesignDataInterface {" +
-    Object.keys(allDesignData)
-      .map((key) => {
-        return `${key}: ${stringifyObjectKeysToString(allDesignData[key][0])}`;
-      })
-      .join("\n") +
-    "}[]";
-  return result;
-};
+  // Loop through the top-level keys in the JSON object
+  for (const key in json) {
+    const values = json[key];
+
+    // Assume the first element in the array has a complete set of keys
+    const keys = Object.keys(values[0]);
+
+    // Generate the interface property definition
+    const propertyDefinition = keys
+      .filter((k) => k !== "")
+      .map((k) => `  ${k}: ${getType(values[0][k])};`)
+      .join("\n");
+
+    // Generate the full interface definition
+    interfaceCode += `  ${key}: {\n${propertyDefinition}\n  }[];\n`;
+  }
+
+  interfaceCode += "}\n";
+
+  return interfaceCode;
+}
+
+function getType(value: any): string {
+  const type = typeof value;
+
+  switch (type) {
+    case "string":
+    case "number":
+    case "boolean":
+      return type;
+    case "object":
+      if (Array.isArray(value)) {
+        // Assume the array contains only objects with the same structure
+        return `${getType(value[0])}[]`;
+      } else {
+        // Generate a new interface for the nested object
+        return generateDesignDataInterface(value);
+      }
+    default:
+      return "any";
+  }
+}
 
 const main = async () => {
+  const allDesignData = (await fetchAllDesignData()) as unknown;
   generateFile(
-    await generateDesignDataInterface(),
+    generateDesignDataInterface(allDesignData as any),
     "./src/DesignData.interface.ts"
   );
 };
