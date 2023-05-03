@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "types": ["@types/jest"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
