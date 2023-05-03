@@ -1,25 +1,106 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /Itineraries/{itineraryId} {
+    function existingData() {
+      return resource.data;
+    }
+
+    function incomingData() {
+      return request.resource.data;
+    }
+
+    function dataDiff() {
+      return incomingData().diff(existingData());
+    }
+
     
-      // しおりデータのスキーマ検証
-      function isValidItinerary(itinerary) {
-        return itinerary.size() == 1
-                 && 'title' in itinerary && itinerary.title is string;
+    match /Itineraries/{ItinerariesID} {
+      
+      function getItinerariesData() {
+        return get(/databases/$(database)/documents/Itineraries/$(ItinerariesID)).data
       }
       
       allow get: if true;
+allow list: if false;
+allow create: if true;
+allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow delete: if false;
+    match /PlanGroups/{PlanGroupsID} {
       
-      allow create, update: if isValidItinerary(request.resource.data);
-      
-      match /{document=**} {
-        allow read, write: if true;
+      function getPlanGroupsData() {
+        return get(/databases/$(database)/documents/Itineraries/$(ItinerariesID)/PlanGroups/$(PlanGroupsID)).data
       }
       
+      allow get: if true;
+allow list: if true;
+allow create: if true && !getItinerariesData().isImmutable;
+allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow delete: if true && !getItinerariesData().isImmutable;
     }
-    match /{document=**} {
-      allow read, write: if true;
+
+    match /Plans/{PlansID} {
+      
+      function getPlansData() {
+        return get(/databases/$(database)/documents/Itineraries/$(ItinerariesID)/Plans/$(PlansID)).data
+      }
+      
+      allow get: if true;
+allow list: if true;
+allow create: if true && !getItinerariesData().isImmutable;
+allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow delete: if true && !getItinerariesData().isImmutable;
+    }
+    }
+
+    match /MPlace/{MPlaceID} {
+      
+      function getMPlaceData() {
+        return get(/databases/$(database)/documents/MPlace/$(MPlaceID)).data
+      }
+      
+      allow get: if true;
+allow list: if true;
+allow create: if false;
+allow update: if false && !dataDiff().affectedKeys().hasAny(['place_id', 'language', 'photoUrls', 'createdAt'].toSet());
+allow delete: if false;
+    }
+
+    match /MThumbnail/{MThumbnailID} {
+      
+      function getMThumbnailData() {
+        return get(/databases/$(database)/documents/MThumbnail/$(MThumbnailID)).data
+      }
+      
+      allow get: if true;
+allow list: if true;
+allow create: if true;
+allow update: if false && !dataDiff().affectedKeys().hasAny(['imageUrl', 'aspectRatio', 'prevThumbnailID', 'attachedCount', 'dummyTextMap', 'dummyStoreUrlMap', 'createdAt'].toSet());
+allow delete: if false;
+    match /Decorations/{DecorationsID} {
+      
+      function getDecorationsData() {
+        return get(/databases/$(database)/documents/MThumbnail/$(MThumbnailID)/Decorations/$(DecorationsID)).data
+      }
+      
+      allow get: if true;
+allow list: if true;
+allow create: if true;
+allow update: if false && !dataDiff().affectedKeys().hasAny(['decorationType', 'key', 'createdAt'].toSet());
+allow delete: if false;
+    }
+    }
+
+    match /MMaskShape/{MMaskShapeID} {
+      
+      function getMMaskShapeData() {
+        return get(/databases/$(database)/documents/MMaskShape/$(MMaskShapeID)).data
+      }
+      
+      allow get: if true;
+allow list: if true;
+allow create: if false;
+allow update: if false && !dataDiff().affectedKeys().hasAny(['storageUrl', 'attachedCount', 'createdAt'].toSet());
+allow delete: if false;
     }
   }
 }
