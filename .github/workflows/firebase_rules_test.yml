@@ -2,6 +2,7 @@ name: Firestore Security Rules Test
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   test_firestore_rules:
