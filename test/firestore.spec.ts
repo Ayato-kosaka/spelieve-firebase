@@ -14,6 +14,9 @@ import {
   deleteDoc,
   doc,
   collection,
+  CollectionReference,
+  DocumentReference,
+  DocumentData,
 } from "firebase/firestore";
 import { describe, it, beforeEach, afterAll, beforeAll } from "@jest/globals";
 
@@ -57,166 +60,385 @@ afterAll(async () => {
   await testEnv.cleanup();
 });
 
-describe("Itineraries security rules", () => {
+describe("Itineraries", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
+    const { guestClientDB } = getDB();
+    guestCollectionRef = collection(guestClientDB, "Itineraries");
+  });
   beforeEach(async () => {
     await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
-      await setDoc(doc(noRuleContext.firestore(), "Itineraries", "testDocId"), {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "Itineraries"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+      await setDoc(doc(noRuleCollectionRef, "immutableDocId"), {
+        field1: "value1",
+        isImmutable: true,
+      });
+    });
+  });
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestCollectionRef, "immutableDocId")));
+  });
+  it("list: 無条件で list 不可能", async () => {
+    await assertFails(getDocs(guestCollectionRef));
+  });
+  it("create: 無条件で create 可能", async () => {
+    await assertSucceeds(
+      addDoc(guestCollectionRef, {
+        field1: "value1",
+        isImmutable: true,
+      })
+    );
+  });
+  describe("update", () => {
+    it("isImmutable フィールドが true の場合、update 不可能", async () => {
+      await assertFails(
+        updateDoc(doc(guestCollectionRef, "immutableDocId"), {
+          field1: "value1",
+        })
+      );
+    });
+    it("上記以外の場合、update 可能", async () => {
+      await assertSucceeds(
+        updateDoc(doc(guestCollectionRef, "testDocId"), {
+          field1: "value1",
+          isImmutable: true,
+        })
+      );
+    });
+  });
+  it("delete: 無条件で delete 不可能", async () => {
+    await assertFails(deleteDoc(doc(guestCollectionRef, "testDocId")));
+  });
+});
+
+describe("PlanGroups", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  let guestImmutableCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
+    const { guestClientDB } = getDB();
+    guestCollectionRef = collection(
+      collection(guestClientDB, "Itineraries"),
+      "testDocId",
+      "PlanGroups"
+    );
+    guestImmutableCollectionRef = collection(
+      collection(guestClientDB, "Itineraries"),
+      "immutableDocId",
+      "PlanGroups"
+    );
+  });
+  // Global.beforeEach が走るため、beforeAll ではなく、beforeEach で定義する
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "Itineraries"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+      await setDoc(doc(noRuleCollectionRef, "immutableDocId"), {
+        field1: "value1",
+        isImmutable: true,
+      });
+      await setDoc(
+        doc(noRuleCollectionRef, "testDocId", "PlanGroups", "testDocId"),
+        {
+          field1: "value1",
+        }
+      );
+      await setDoc(
+        doc(noRuleCollectionRef, "immutableDocId", "PlanGroups", "testDocId"),
+        {
+          field1: "value1",
+        }
+      );
+    });
+  });
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestImmutableCollectionRef, "testDocId")));
+  });
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestImmutableCollectionRef));
+  });
+  describe("create", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、create 不可能", async () => {
+      await assertFails(
+        addDoc(guestImmutableCollectionRef, { field1: "newValue" })
+      );
+    });
+    it("上記以外の場合、create 可能", async () => {
+      await assertSucceeds(addDoc(guestCollectionRef, { field1: "newValue" }));
+    });
+  });
+  describe("update", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、update 不可能", async () => {
+      await assertFails(
+        updateDoc(doc(guestImmutableCollectionRef, "testDocId"), {
+          field1: "newValue",
+        })
+      );
+    });
+    it("上記以外の場合、update 可能", async () => {
+      await assertSucceeds(
+        updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
+      );
+    });
+  });
+  describe("delete", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、delete 不可能", async () => {
+      await assertFails(
+        deleteDoc(doc(guestImmutableCollectionRef, "testDocId"))
+      );
+    });
+    it("上記以外の場合、delete 可能", async () => {
+      await assertSucceeds(deleteDoc(doc(guestCollectionRef, "testDocId")));
+    });
+  });
+});
+
+describe("Plans", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  let guestImmutableCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
+    const { guestClientDB } = getDB();
+    guestCollectionRef = collection(
+      collection(guestClientDB, "Itineraries"),
+      "testDocId",
+      "Plans"
+    );
+    guestImmutableCollectionRef = collection(
+      collection(guestClientDB, "Itineraries"),
+      "immutableDocId",
+      "Plans"
+    );
+  });
+  // Global.beforeEach が走るため、beforeAll ではなく、beforeEach で定義する
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "Itineraries"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+      await setDoc(doc(noRuleCollectionRef, "immutableDocId"), {
+        field1: "value1",
+        isImmutable: true,
+      });
+      await setDoc(
+        doc(noRuleCollectionRef, "testDocId", "Plans", "testDocId"),
+        {
+          field1: "value1",
+        }
+      );
+      await setDoc(
+        doc(noRuleCollectionRef, "immutableDocId", "Plans", "testDocId"),
+        {
+          field1: "value1",
+        }
+      );
+    });
+  });
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestImmutableCollectionRef, "testDocId")));
+  });
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestImmutableCollectionRef));
+  });
+  describe("create", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、create 不可能", async () => {
+      await assertFails(
+        addDoc(guestImmutableCollectionRef, { field1: "newValue" })
+      );
+    });
+    it("上記以外の場合、create 可能", async () => {
+      await assertSucceeds(addDoc(guestCollectionRef, { field1: "newValue" }));
+    });
+  });
+  describe("update", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、update 不可能", async () => {
+      await assertFails(
+        updateDoc(doc(guestImmutableCollectionRef, "testDocId"), {
+          field1: "newValue",
+        })
+      );
+    });
+    it("上記以外の場合、update 可能", async () => {
+      await assertSucceeds(
+        updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
+      );
+    });
+  });
+  describe("delete", () => {
+    it("Itineraries の isImmutable フィールドが true の場合、delete 不可能", async () => {
+      await assertFails(
+        deleteDoc(doc(guestImmutableCollectionRef, "testDocId"))
+      );
+    });
+    it("上記以外の場合、delete 可能", async () => {
+      await assertSucceeds(deleteDoc(doc(guestCollectionRef, "testDocId")));
+    });
+  });
+});
+
+describe("MPlace", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
+    const { guestClientDB } = getDB();
+    guestCollectionRef = collection(guestClientDB, "MPlace");
+  });
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "MPlace"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
         field1: "value1",
       });
     });
   });
-  it("get: Itineraries は無条件で get 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "Itineraries");
-    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestCollectionRef, "testDocId")));
   });
-  it("list: Itineraries は無条件で list 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "Itineraries");
-    await assertFails(getDocs(collectionRef));
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestCollectionRef));
   });
-  // TODO: Write tests for Itineraries security rules
-});
-
-describe("PlanGroups security rules", () => {
-  // TODO: Write tests for PlanGroups security rules
-});
-
-describe("Plans security rules", () => {
-  // TODO: Write tests for Plans security rules
-});
-
-describe("MPlace security rules", () => {
-  it("get: MPlace は無条件で get 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MPlace");
-    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
+  it("create: 無条件で create 不可能", async () => {
+    await assertFails(addDoc(guestCollectionRef, { field1: "newValue" }));
   });
-  it("list: MPlace は無条件で list 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MPlace");
-    await assertSucceeds(getDocs(collectionRef));
-  });
-  it("create: MPlace は無条件で create 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MPlace");
-    await assertFails(addDoc(collectionRef, { field1: "value1" }));
-  });
-  it("update: MPlace は無条件で update 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MPlace");
+  it("update: 無条件で update 不可能", async () => {
     await assertFails(
-      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+      updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
     );
   });
-  it("delete: MPlace は無条件で delete 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MPlace");
-    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
+  it("delete: 無条件で delete 不可能", async () => {
+    await assertFails(deleteDoc(doc(guestCollectionRef, "testDocId")));
   });
 });
 
-describe("MThumbnail security rules", () => {
-  it("get: MThumbnail は無条件で get 可能", async () => {
+describe("MThumbnail", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
     const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
+    guestCollectionRef = collection(guestClientDB, "MThumbnail");
   });
-  it("list: MThumbnail は無条件で list 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertSucceeds(getDocs(collectionRef));
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "MThumbnail"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+    });
   });
-  it("create: MThumbnail は無条件で create 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertSucceeds(addDoc(collectionRef, { field1: "value1" }));
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestCollectionRef, "testDocId")));
   });
-  it("update: MThumbnail は無条件で update 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MThumbnail");
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestCollectionRef));
+  });
+  it("create: 無条件で create 可能", async () => {
+    await assertSucceeds(addDoc(guestCollectionRef, { field1: "newValue" }));
+  });
+  it("update: 無条件で update 不可能", async () => {
     await assertFails(
-      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+      updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
     );
   });
-  it("delete: MThumbnail は無条件で delete 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
+  it("delete: 無条件で delete 不可能", async () => {
+    await assertFails(deleteDoc(doc(guestCollectionRef, "testDocId")));
   });
 });
 
-describe("Decorations security rules", () => {
-  it("get: Decorations は無条件で get 可能", async () => {
+describe("Decorations", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
     const { guestClientDB } = getDB();
-    const collectionRef = collection(
-      doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
+    guestCollectionRef = collection(
+      collection(guestClientDB, "MThumbnail"),
+      "testDocId",
       "Decorations"
     );
-    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
-  it("list: Decorations は無条件で list 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(
-      doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
-      "Decorations"
-    );
-    await assertSucceeds(getDocs(collectionRef));
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "MThumbnail"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+      await setDoc(
+        doc(noRuleCollectionRef, "testDocId", "Decorations", "testDocId"),
+        {
+          field1: "value1",
+        }
+      );
+    });
   });
-  it("create: Decorations は無条件で create 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(
-      doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
-      "Decorations"
-    );
-    await assertSucceeds(addDoc(collectionRef, { field1: "value1" }));
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestCollectionRef, "testDocId")));
   });
-  it("update: Decorations は無条件で update 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(
-      doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
-      "Decorations"
-    );
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestCollectionRef));
+  });
+  it("create: 無条件で create 可能", async () => {
+    await assertSucceeds(addDoc(guestCollectionRef, { field1: "newValue" }));
+  });
+  it("update: 無条件で update 不可能", async () => {
     await assertFails(
-      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+      updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
     );
   });
-  it("delete: Decorations は無条件で delete 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(
-      doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
-      "Decorations"
-    );
-    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
+  it("delete: 無条件で delete 不可能", async () => {
+    await assertFails(deleteDoc(doc(guestCollectionRef, "testDocId")));
   });
 });
 
-describe("MMaskShape security rules", () => {
-  it("get: MMaskShape は無条件で get 可能", async () => {
+describe("MMaskShape", () => {
+  let guestCollectionRef: CollectionReference<DocumentData>;
+  beforeAll(() => {
     const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
+    guestCollectionRef = collection(guestClientDB, "MMaskShape");
   });
-  it("list: MMaskShape は無条件で list 可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertSucceeds(getDocs(collectionRef));
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      const noRuleCollectionRef = collection(
+        noRuleContext.firestore(),
+        "MMaskShape"
+      );
+      await setDoc(doc(noRuleCollectionRef, "testDocId"), {
+        field1: "value1",
+      });
+    });
   });
-  it("create: MMaskShape は無条件で create 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertFails(addDoc(collectionRef, { field1: "value1" }));
+  it("get: 無条件で get 可能", async () => {
+    await assertSucceeds(getDoc(doc(guestCollectionRef, "testDocId")));
   });
-  it("update: MMaskShape は無条件で update 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MMaskShape");
+  it("list: 無条件で list 可能", async () => {
+    await assertSucceeds(getDocs(guestCollectionRef));
+  });
+  it("create: 無条件で create 不可能", async () => {
+    await assertFails(addDoc(guestCollectionRef, { field1: "newValue" }));
+  });
+  it("update: 無条件で update 不可能", async () => {
     await assertFails(
-      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+      updateDoc(doc(guestCollectionRef, "testDocId"), { field1: "newValue" })
     );
   });
-  it("delete: MMaskShape は無条件で delete 不可能", async () => {
-    const { guestClientDB } = getDB();
-    const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
+  it("delete: 無条件で delete 不可能", async () => {
+    await assertFails(deleteDoc(doc(guestCollectionRef, "testDocId")));
   });
 });
