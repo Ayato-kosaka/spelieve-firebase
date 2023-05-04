@@ -127,10 +127,10 @@ describe("MThumbnail security rules", () => {
     const collectionRef = collection(guestClientDB, "MThumbnail");
     await assertSucceeds(getDocs(collectionRef));
   });
-  it("create: MThumbnail は無条件で create 不可能", async () => {
+  it("create: MThumbnail は無条件で create 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertFails(addDoc(collectionRef, { field1: "value1" }));
+    await assertSucceeds(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: MThumbnail は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
@@ -163,13 +163,13 @@ describe("Decorations security rules", () => {
     );
     await assertSucceeds(getDocs(collectionRef));
   });
-  it("create: Decorations は無条件で create 不可能", async () => {
+  it("create: Decorations は無条件で create 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(
       doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
       "Decorations"
     );
-    await assertFails(addDoc(collectionRef, { field1: "value1" }));
+    await assertSucceeds(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: Decorations は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
