@@ -19,5 +19,15 @@ jobs:
       - name: Start Firebase Emulators
         run: firebase emulators:start --only firestore &
 
+      - name: Wait for Firestore Emulator
+        run: |
+          for i in {1..30}; do
+            nc -z localhost 8080 && echo Success && exit 0
+            echo -n .
+            sleep 1
+          done
+          echo Failed waiting for Firestore Emulator
+          exit 1
+
       - name: Run Jest tests
         run: npm run test
