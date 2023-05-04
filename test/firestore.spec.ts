@@ -9,6 +9,7 @@ import {
   getDoc,
   getDocs,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -57,10 +58,17 @@ afterAll(async () => {
 });
 
 describe("Itineraries security rules", () => {
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (noRuleContext) => {
+      await setDoc(doc(noRuleContext.firestore(), "Itineraries", "testDocId"), {
+        field1: "value1",
+      });
+    });
+  });
   it("get: Itineraries は無条件で get 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "Itineraries");
-    await assertSucceeds(getDoc(doc(collectionRef, "test")));
+    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
   it("list: Itineraries は無条件で list 不可能", async () => {
     const { guestClientDB } = getDB();
@@ -82,7 +90,7 @@ describe("MPlace security rules", () => {
   it("get: MPlace は無条件で get 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MPlace");
-    await assertSucceeds(getDoc(doc(collectionRef, "test")));
+    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
   it("list: MPlace は無条件で list 可能", async () => {
     const { guestClientDB } = getDB();
@@ -92,17 +100,19 @@ describe("MPlace security rules", () => {
   it("create: MPlace は無条件で create 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MPlace");
-    await assertFails(addDoc(collectionRef, { test: "test" }));
+    await assertFails(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: MPlace は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MPlace");
-    await assertFails(updateDoc(doc(collectionRef, "test"), { test: "test" }));
+    await assertFails(
+      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+    );
   });
   it("delete: MPlace は無条件で delete 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MPlace");
-    await assertFails(deleteDoc(doc(collectionRef, "test")));
+    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
   });
 });
 
@@ -110,7 +120,7 @@ describe("MThumbnail security rules", () => {
   it("get: MThumbnail は無条件で get 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertSucceeds(getDoc(doc(collectionRef, "test")));
+    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
   it("list: MThumbnail は無条件で list 可能", async () => {
     const { guestClientDB } = getDB();
@@ -120,17 +130,19 @@ describe("MThumbnail security rules", () => {
   it("create: MThumbnail は無条件で create 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertFails(addDoc(collectionRef, { test: "test" }));
+    await assertFails(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: MThumbnail は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertFails(updateDoc(doc(collectionRef, "test"), { test: "test" }));
+    await assertFails(
+      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+    );
   });
   it("delete: MThumbnail は無条件で delete 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MThumbnail");
-    await assertFails(deleteDoc(doc(collectionRef, "test")));
+    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
   });
 });
 
@@ -141,7 +153,7 @@ describe("Decorations security rules", () => {
       doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
       "Decorations"
     );
-    await assertSucceeds(getDoc(doc(collectionRef, "test")));
+    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
   it("list: Decorations は無条件で list 可能", async () => {
     const { guestClientDB } = getDB();
@@ -157,7 +169,7 @@ describe("Decorations security rules", () => {
       doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
       "Decorations"
     );
-    await assertFails(addDoc(collectionRef, { test: "test" }));
+    await assertFails(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: Decorations は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
@@ -165,7 +177,9 @@ describe("Decorations security rules", () => {
       doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
       "Decorations"
     );
-    await assertFails(updateDoc(doc(collectionRef, "test"), { test: "test" }));
+    await assertFails(
+      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+    );
   });
   it("delete: Decorations は無条件で delete 不可能", async () => {
     const { guestClientDB } = getDB();
@@ -173,7 +187,7 @@ describe("Decorations security rules", () => {
       doc(collection(guestClientDB, "MThumbnail"), "SampleMThumbnail"),
       "Decorations"
     );
-    await assertFails(deleteDoc(doc(collectionRef, "test")));
+    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
   });
 });
 
@@ -181,7 +195,7 @@ describe("MMaskShape security rules", () => {
   it("get: MMaskShape は無条件で get 可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertSucceeds(getDoc(doc(collectionRef, "test")));
+    await assertSucceeds(getDoc(doc(collectionRef, "testDocId")));
   });
   it("list: MMaskShape は無条件で list 可能", async () => {
     const { guestClientDB } = getDB();
@@ -191,16 +205,18 @@ describe("MMaskShape security rules", () => {
   it("create: MMaskShape は無条件で create 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertFails(addDoc(collectionRef, { test: "test" }));
+    await assertFails(addDoc(collectionRef, { field1: "value1" }));
   });
   it("update: MMaskShape は無条件で update 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertFails(updateDoc(doc(collectionRef, "test"), { test: "test" }));
+    await assertFails(
+      updateDoc(doc(collectionRef, "testDocId"), { field1: "value1" })
+    );
   });
   it("delete: MMaskShape は無条件で delete 不可能", async () => {
     const { guestClientDB } = getDB();
     const collectionRef = collection(guestClientDB, "MMaskShape");
-    await assertFails(deleteDoc(doc(collectionRef, "test")));
+    await assertFails(deleteDoc(doc(collectionRef, "testDocId")));
   });
 });
