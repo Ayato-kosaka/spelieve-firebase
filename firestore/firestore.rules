@@ -23,7 +23,7 @@ service cloud.firestore {
       allow get: if true;
 allow list: if false;
 allow create: if true;
-allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow update: if true && !getItinerariesData().get('isImmutable', false) && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
 allow delete: if false;
     match /PlanGroups/{PlanGroupsID} {
       
@@ -33,9 +33,9 @@ allow delete: if false;
       
       allow get: if true;
 allow list: if true;
-allow create: if true && !getItinerariesData().isImmutable;
-allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
-allow delete: if true && !getItinerariesData().isImmutable;
+allow create: if true && !getItinerariesData().get('isImmutable', false);
+allow update: if true && !getItinerariesData().get('isImmutable', false) && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow delete: if true && !getItinerariesData().get('isImmutable', false);
     }
 
     match /Plans/{PlansID} {
@@ -46,9 +46,9 @@ allow delete: if true && !getItinerariesData().isImmutable;
       
       allow get: if true;
 allow list: if true;
-allow create: if true && !getItinerariesData().isImmutable;
-allow update: if true && !getItinerariesData().isImmutable && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
-allow delete: if true && !getItinerariesData().isImmutable;
+allow create: if true && !getItinerariesData().get('isImmutable', false);
+allow update: if true && !getItinerariesData().get('isImmutable', false) && !dataDiff().affectedKeys().hasAny(['createdAt'].toSet());
+allow delete: if true && !getItinerariesData().get('isImmutable', false);
     }
     }
 

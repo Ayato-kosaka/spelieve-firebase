@@ -28,5 +28,5 @@ export default ({ designData, t_id, args }: SecurityRulesInterface) => {
       c.c_datatype === "boolean"
   );
   if (!column) throw new Error("CSR003 column not found");
-  return `!get${targetTable.t_name}Data().${columnName}`;
+  return `!get${targetTable.t_name}Data().get('${columnName}', false)`;
 };
