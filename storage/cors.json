@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "https://www.spelieve.com",
+      "https://spelieve.com"
+    ],
+    "method": [
+      "GET"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
